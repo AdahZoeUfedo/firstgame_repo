@@ -1,2 +1,10 @@
-print("I am happy today")
-print ("This game is a good game")
+import pygame
+
+pygame.init()
+screen = pygame.display.set_mode((800,400))
+
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+             pygame.quit()
+    pygame.display.update() 
