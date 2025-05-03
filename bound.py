@@ -25,8 +25,8 @@ rock_surf = pygame.transform.scale(rock_surf, (50, 50))
 cookie_rect = cookie_surf.get_rect(midtop=(randint(0, 750), 0))
 rock_rect = rock_surf.get_rect(midtop=(randint(0, 750), -100))
 
-cookie_fall_speed = 5
-rock_fall_speed = 7
+cookie_fall_speed = 2
+rock_fall_speed = 1
 
 # Game variables
 score = 0
@@ -41,55 +41,68 @@ while True:
         if event.type == pygame.QUIT:
              pygame.quit()
              exit()        
-            
+        
+        # Restart game if R is pressed after game over
+        if game_over and event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+            score = 0
+            lives = 3
+            game_over = False
+            player_rect.midbottom = (80, 300)
+            cookie_rect.midtop = (randint(0, 750), 0)
+            rock_rect.midtop = (randint(0, 750), -100)
+
+    if not game_over:    
  
     # Movement input
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        player_rect.x -= player_speed
-    if keys[pygame.K_RIGHT]:
-        player_rect.x += player_speed
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            player_rect.x -= player_speed
+        if keys[pygame.K_RIGHT]:
+            player_rect.x += player_speed
 
-    # Keep player within screen bounds
-    if player_rect.left < 0:
-        player_rect.left = 0
-    if player_rect.right > 800:
-        player_rect.right = 800
+        # Keep player within screen bounds
+        if player_rect.left < 0:
+            player_rect.left = 0
+        if player_rect.right > 800:
+            player_rect.right = 800
+            
+        # Move cookie and rock downward
+        cookie_rect.y += cookie_fall_speed
+        rock_rect.y += rock_fall_speed
+
+        # Reset position if off-screen
+        if cookie_rect.top > 400:
+            cookie_rect.midtop = (randint(0, 750), 0)
+        if rock_rect.top > 400:
+            rock_rect.midtop = (randint(0, 750), 0)
         
-    # Move cookie and rock downward
-    cookie_rect.y += cookie_fall_speed
-    rock_rect.y += rock_fall_speed
+        # Collision detection for catching cookies
+        if player_rect.colliderect(cookie_rect):
+            score += 1
+            cookie_rect.midtop = (randint(0, 750), 0)  # Reset cookie position
 
-    # Reset position if off-screen
-    if cookie_rect.top > 400:
-        cookie_rect.midtop = (randint(0, 750), 0)
-    if rock_rect.top > 400:
-        rock_rect.midtop = (randint(0, 750), 0)
-    
-    # Collision detection for catching cookies
-    if player_rect.colliderect(cookie_rect):
-        score += 1
-        cookie_rect.midtop = (randint(0, 750), 0)  # Reset cookie position
+        # Collision detection for hitting rocks
+        if player_rect.colliderect(rock_rect):
+            lives -= 1
+            rock_rect.midtop = (randint(0, 750), 0)  # Reset rock position
 
-    # Collision detection for hitting rocks
-    if player_rect.colliderect(rock_rect):
-        lives -= 1
-        rock_rect.midtop = (randint(0, 750), 0)  # Reset rock position
+        # Check game over condition
+        if lives <= 0 or score >= 10:
+            game_over = True
 
-    # Check game over condition
-    if lives <= 0:
-        game_over = True
-
-    # Check if player caught 10 cookies
-    if score >= 10:
-        game_over = True
+        # Check if player caught 10 cookies
+       # if score >= 10:
+          #  game_over = True
                          
     screen.blit(sky_surface,(0,0))  
     screen.blit(ground_surface,(0,300)) 
     screen.blit(text_surface,(300,50)) 
-    screen.blit(cookie_surf, cookie_rect)
-    screen.blit(rock_surf, rock_rect)
-    screen.blit(player_surf, player_rect)
+    
+    if not game_over:
+        
+        screen.blit(cookie_surf, cookie_rect)
+        screen.blit(rock_surf, rock_rect)
+        screen.blit(player_surf, player_rect)
     
     # Display score and lives
     score_text = score_font.render(f"Score: {score}", False, 'black')
