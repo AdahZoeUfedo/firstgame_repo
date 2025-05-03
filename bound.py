@@ -28,6 +28,14 @@ rock_rect = rock_surf.get_rect(midtop=(randint(0, 750), -100))
 cookie_fall_speed = 5
 rock_fall_speed = 7
 
+# Game variables
+score = 0
+lives = 3
+game_over = False
+
+# Font for score and lives
+score_font = pygame.font.Font('firstgame_repo/font/Pixeltype.ttf', 30)
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -57,13 +65,46 @@ while True:
         cookie_rect.midtop = (randint(0, 750), 0)
     if rock_rect.top > 400:
         rock_rect.midtop = (randint(0, 750), 0)
-                     
+    
+    # Collision detection for catching cookies
+    if player_rect.colliderect(cookie_rect):
+        score += 1
+        cookie_rect.midtop = (randint(0, 750), 0)  # Reset cookie position
+
+    # Collision detection for hitting rocks
+    if player_rect.colliderect(rock_rect):
+        lives -= 1
+        rock_rect.midtop = (randint(0, 750), 0)  # Reset rock position
+
+    # Check game over condition
+    if lives <= 0:
+        game_over = True
+
+    # Check if player caught 10 cookies
+    if score >= 10:
+        game_over = True
+                         
     screen.blit(sky_surface,(0,0))  
     screen.blit(ground_surface,(0,300)) 
     screen.blit(text_surface,(300,50)) 
     screen.blit(cookie_surf, cookie_rect)
     screen.blit(rock_surf, rock_rect)
     screen.blit(player_surf, player_rect)
+    
+    # Display score and lives
+    score_text = score_font.render(f"Score: {score}", False, 'black')
+    lives_text = score_font.render(f"Lives: {lives}", False, 'black')
+    screen.blit(score_text, (10, 10))
+    screen.blit(lives_text, (700, 10))
+    
+     # Display game over message
+    if game_over:
+        if score >= 10:
+            game_over_text = test_font.render("You Win! Level Cleared!", False, 'green')
+        else:
+            game_over_text = test_font.render("Game Over!", False, 'red')
+        screen.blit(game_over_text, (250, 150))
+
            
     pygame.display.update() 
     clock.tick(60)
